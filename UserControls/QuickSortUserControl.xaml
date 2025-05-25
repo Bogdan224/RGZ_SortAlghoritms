@@ -1,0 +1,28 @@
+﻿<UserControl x:Class="RGZ_SortAlghoritms.UserControls.QuickSortUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RGZ_SortAlghoritms.UserControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <TextBlock Text="Quick Sort" HorizontalAlignment="Center"
+                   FontSize="50"/>
+        <StackPanel VerticalAlignment="Center" >
+            <StackPanel x:Name="listStackPanel" Orientation="Horizontal"
+                    HorizontalAlignment="Center">
+
+
+            </StackPanel>
+            <StackPanel x:Name="sortedListStackPanel" Orientation="Horizontal" 
+                        HorizontalAlignment="Center">
+
+
+            </StackPanel>
+        </StackPanel>
+
+        <Button x:Name="alghoritmButton" Height="30" VerticalAlignment="Bottom"
+                    Content="Сортировать" Click="Sort_Click"/>
+    </Grid>
+</UserControl>
