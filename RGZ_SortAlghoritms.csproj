@@ -59,8 +59,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\Alghoritms\SortAlghoritms.cs" />
-    <Compile Include="Models\Converters\ConverterFromString.cs" />
+    <Compile Include="Scripts\Alghoritms\SortAlghoritms.cs" />
+    <Compile Include="Scripts\AnimationManager.cs" />
+    <Compile Include="Scripts\Converters\ConverterFromString.cs" />
     <Compile Include="UserControls\QuickSortUserControl.xaml.cs">
       <DependentUpon>QuickSortUserControl.xaml</DependentUpon>
     </Compile>

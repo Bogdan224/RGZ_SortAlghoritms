@@ -1,5 +1,6 @@
 ﻿using RGZ_SortAlghoritms.Models.Alghoritms;
 using RGZ_SortAlghoritms.Models.Converters;
+using RGZ_SortAlghoritms.Scripts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,70 +24,88 @@ namespace RGZ_SortAlghoritms.UserControls
     /// </summary>
     public partial class QuickSortUserControl : UserControl
     {
+        private int[] sortedList;
         private int[] list;
+
+        private Func<Task> sort;
 
         public QuickSortUserControl()
         {
             Loaded += QuickSortUserControl_Loaded;
+            Unloaded += QuickSortUserControl_Unloaded;
             InitializeComponent();
+        }
+
+        private void QuickSortUserControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            SortAlghoritm<int>.OnArrayElementsSwapped -= SwapElementsFromBackgroundAsync;
         }
 
         private void QuickSortUserControl_Loaded(object sender, RoutedEventArgs e)
         {
+            sortedList = new int[15];
             list = new int[15];
+            quickSortDescriptionTextBlock.Text = "Алгоритм сначала выбирает опорный элемент (pivot). Затем делит массив на два подмассива: " +
+                "в первом элементы меньше или равны pivot, а во втором — больше. После этого каждый подмассив сортируется независимо. " +
+                "Затем процесс рекурсивно повторяется для обоих подмассивов, что позволяет эффективно упорядочить элементы.";
+            SortAlghoritm<int>.OnArrayElementsSwapped += SwapElementsFromBackgroundAsync;
+            sort = () => SortAlghoritm<int>.QuickSort(sortedList);
+
         }
 
         private async void Sort_Click(object sender, RoutedEventArgs e)
         {
+            arrayButton.IsEnabled = false;
+            alghoritmButton.IsEnabled = false;
+
+            await sort?.Invoke();
+
+            arrayButton.IsEnabled = true;
+            alghoritmButton.IsEnabled = true;
+        }
+
+
+        private void CreateArray_Click(object sender, RoutedEventArgs e)
+        {
             Clear();
 
             Random random = new Random();
-            for (int i = 0; i < list.Length; i++)
+            for (int i = 0; i < sortedList.Length; i++)
             {
-                list[i] = random.Next(10, 100);
+                int rand = random.Next(10, 100);
+                list[i] = rand;
+                sortedList[i] = rand;
             }
 
-            CreateArrayUI(list, listStackPanel);
-            CreateArrayUI(list, sortedListStackPanel);
-
-            await Sort();
+            CreateArrayUI(sortedList, sortedListStackPanel);
         }
 
-        private async Task Sort()
-        {
-            SortAlghoritm<int>.OnArrayElementsSwapped += SwapElementsFromBackground;
-
-            await SortAlghoritm<int>.QuickSort(list);
-
-            SortAlghoritm<int>.OnArrayElementsSwapped -= SwapElementsFromBackground;
-        }
-
-        private void SwapElementsFromBackground(int index1, int index2)
+        private async Task SwapElementsFromBackgroundAsync(int index1, int index2)
         {
             // Проверяем, находимся ли мы в UI-потоке
             if (!Application.Current.Dispatcher.CheckAccess())
             {
                 // Если нет, переключаемся в UI-поток через Dispatcher
-                Application.Current.Dispatcher.Invoke(() =>
+                await Application.Current.Dispatcher.Invoke(async () =>
                 {
-                    SwapElements(index1, index2);
+                    await SwapElementsAsync(index1, index2);
                 });
             }
             else
             {
                 // Если уже в UI-потоке, вызываем напрямую
-                SwapElements(index1, index2);
+                await SwapElementsAsync(index1, index2);
             }
         }
 
-        private async void SwapElements(int index1, int index2)
+        private async Task SwapElementsAsync(int index1, int index2)
         {
-            if (!(sortedListStackPanel.Children[index1] is TextBlock textBlock1) || !(sortedListStackPanel.Children[index2] is TextBlock textBlock2))
+            if (!(sortedListStackPanel.Children[index1] is TextBlock) || !(sortedListStackPanel.Children[index2] is TextBlock))
             {
                 throw new NotImplementedException();
             }
-            ShowArrayUI(list, sortedListStackPanel);
-            await SwapElementsUI(sortedListStackPanel, index1, index2);
+            ShowArrayUI(sortedList, sortedListStackPanel);
+            await SwapElementsUIAsync(sortedListStackPanel, index1, index2, 20);
         }
 
         private void CreateArrayUI(int[] array, StackPanel stackPanel)
@@ -114,60 +133,30 @@ namespace RGZ_SortAlghoritms.UserControls
             }
         }
 
-        private async Task SwapElementsUI(StackPanel stackPanel, int index1, int index2)
+        public static async Task SwapElementsUIAsync(Panel panel, int index1, int index2, int height)
         {
-            if (!(sortedListStackPanel.Children[index1] is TextBlock textBlock1) || !(sortedListStackPanel.Children[index2] is TextBlock textBlock2))
+            if (!(panel.Children[index1] is TextBlock) || !(panel.Children[index2] is TextBlock))
             {
                 throw new NotImplementedException();
             }
-            AnimateChoosing((TextBlock)stackPanel.Children[index1], 20);
-            AnimateChoosing((TextBlock)stackPanel.Children[index2], 40);
 
-            await Task.Delay(500);
-            AnimateMovement((TextBlock)stackPanel.Children[index1], index1, index2, 20);
-            AnimateMovement((TextBlock)stackPanel.Children[index2], index2, index1, 40);
-            await Task.Delay(1000);
+            //Анимация опускания
+            AnimationManager.AnimateChoosingAsync((TextBlock)panel.Children[index1], height);
+            await AnimationManager.AnimateChoosingAsync((TextBlock)panel.Children[index2], -height);
 
-            AnimateChoosing((TextBlock)stackPanel.Children[index1], -20);
-            AnimateChoosing((TextBlock)stackPanel.Children[index2], -40);
-            await Task.Delay(500);
+            //Анимация перемещения
+            AnimationManager.AnimateMovementAsync((TextBlock)panel.Children[index1], index1, index2);
+            await AnimationManager.AnimateMovementAsync((TextBlock)panel.Children[index2], index2, index1);
+
+            //Анимация поднятия
+            AnimationManager.AnimateStopChoosingAsync((TextBlock)panel.Children[index1], -height);
+            await AnimationManager.AnimateStopChoosingAsync((TextBlock)panel.Children[index2], height);
         }
 
-        private async Task AnimateMovement(TextBlock textBlock, int index1, int index2, int height)
-        {
-            double durationMs = 1000; // Скорость из Slider
-            double startX = (textBlock.ActualWidth + 10) * index1;
-            double delta = (index2 * (textBlock.ActualWidth + 10)) - startX;
-            int steps = 10;
-
-            for (int i = 0; i <= steps; i++)
-            {
-                ((TranslateTransform)textBlock.RenderTransform).X = (delta * i / steps);
-                
-                await Task.Delay((int)(durationMs / steps));
-            }
-        }
-
-        private async Task AnimateChoosing(TextBlock textBlock, int height)
-        {
-            double durationMs = 500;
-            int steps = 10;
-
-            for (int i = 0; i <= steps; i++) 
-            {
-                if(height < 0)
-                    ((TranslateTransform)textBlock.RenderTransform).Y = -height - (-height * i / steps);
-                else
-                    ((TranslateTransform)textBlock.RenderTransform).Y = height * i / steps;
-                await Task.Delay((int)(durationMs / steps));
-            }
-        }
-        
 
 
         private void Clear()
         {
-            listStackPanel.Children.Clear();
             sortedListStackPanel.Children.Clear();
         }
     }

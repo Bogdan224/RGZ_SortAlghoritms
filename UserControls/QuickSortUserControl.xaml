@@ -7,22 +7,23 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <TextBlock Text="Quick Sort" HorizontalAlignment="Center"
-                   FontSize="50"/>
+        <StackPanel VerticalAlignment="Top">
+            <TextBlock Text="Quick Sort" HorizontalAlignment="Center"
+                       FontSize="50"/>
+            <TextBlock x:Name="quickSortDescriptionTextBlock" HorizontalAlignment="Left"
+                       FontSize="14" TextWrapping="Wrap"/>
+        </StackPanel>
         <StackPanel VerticalAlignment="Center" >
-            <StackPanel x:Name="listStackPanel" Orientation="Horizontal"
+            <StackPanel x:Name="sortedListStackPanel" Orientation="Horizontal"
                     HorizontalAlignment="Center">
-
-
-            </StackPanel>
-            <StackPanel x:Name="sortedListStackPanel" Orientation="Horizontal" 
-                        HorizontalAlignment="Center">
-
-
             </StackPanel>
         </StackPanel>
 
-        <Button x:Name="alghoritmButton" Height="30" VerticalAlignment="Bottom"
+        <StackPanel VerticalAlignment="Bottom">
+            <Button x:Name="arrayButton" Height="30" VerticalAlignment="Bottom"
+                    Content="Создать массив" Click="CreateArray_Click"/>
+            <Button x:Name="alghoritmButton" Height="30" VerticalAlignment="Bottom"
                     Content="Сортировать" Click="Sort_Click"/>
+        </StackPanel>
     </Grid>
 </UserControl>

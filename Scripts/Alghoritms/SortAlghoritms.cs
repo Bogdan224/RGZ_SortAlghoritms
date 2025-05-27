@@ -8,7 +8,7 @@ namespace RGZ_SortAlghoritms.Models.Alghoritms
 {
     public static class SortAlghoritm<T> where T : IComparable
     {
-        public static event Action<int, int> OnArrayElementsSwapped;
+        public static event Func<int, int, Task> OnArrayElementsSwapped;
 
         private static void Swap(ref T value1, ref T value2)
         {
@@ -20,10 +20,7 @@ namespace RGZ_SortAlghoritms.Models.Alghoritms
             if (index1 == index2) return;
 
             // Уведомляем UI о изменении
-            OnArrayElementsSwapped?.Invoke(index1, index2);
-
-            // Задержка для визуализации
-            await Task.Delay(2100);
+            await OnArrayElementsSwapped?.Invoke(index1, index2);
 
             // Выполняем перестановку
             (array[index1], array[index2]) = (array[index2], array[index1]);
